@@ -36,3 +36,21 @@ func (user *User) Save() (*User, error) {
 	user.ID = id
 	return user, err
 }
+
+func (user *User) ValidateCredentials() (*User, error) {
+	query := "SELECT * FROM users WHERE email = ?"
+	row := db.DB.QueryRow(query, user.Email)
+
+	storedUser := User{}
+	err := row.Scan(&storedUser.ID, &storedUser.Email, &storedUser.Password)
+	if err != nil {
+		return nil, err
+	}
+
+	err = utils.VerifyPassword(storedUser.Password, user.Password)
+	if err != nil {
+		return nil, err
+	}
+
+	return &storedUser, nil
+}
