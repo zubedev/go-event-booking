@@ -108,3 +108,47 @@ func deleteEvent(context *gin.Context) {
 
 	context.JSON(http.StatusNoContent, nil)
 }
+
+func registerEvent(context *gin.Context) {
+	eventId, err := strconv.ParseInt(context.Param("id"), 10, 64)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": err})
+		return
+	}
+
+	event, err := models.GetEventById(eventId)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": err})
+		return
+	}
+
+	err = event.Register(context.GetInt64("userId"))
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": err})
+		return
+	}
+
+	context.JSON(http.StatusCreated, gin.H{"message": "Registration successful"})
+}
+
+func cancelRegistration(context *gin.Context) {
+	eventId, err := strconv.ParseInt(context.Param("id"), 10, 64)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": err})
+		return
+	}
+
+	event, err := models.GetEventById(eventId)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": err})
+		return
+	}
+
+	err = event.CancelRegistration(context.GetInt64("userId"))
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": err})
+		return
+	}
+
+	context.JSON(http.StatusNoContent, nil)
+}
