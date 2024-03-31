@@ -32,13 +32,13 @@ func login(context *gin.Context) {
 	}
 
 	user, err = user.ValidateCredentials()
-	if err != nil {
+	if err != nil || user == nil || user.ID == 0 {
 		context.JSON(http.StatusUnauthorized, gin.H{"message": err})
 		return
 	}
 
 	token, err := utils.GenerateToken(user.Email, user.ID)
-	if err != nil {
+	if err != nil || token == "" {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": err})
 		return
 	}
